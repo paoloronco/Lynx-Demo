@@ -114,12 +114,12 @@ if (process.env.NODE_ENV !== 'demo') {
         const passwordHash = bcrypt.hashSync('demo123', salt);
         db.run(
           `INSERT INTO admin_users (username, password_hash, salt) VALUES (?, ?, ?)`,
-          ['demo', passwordHash, salt],
+          ['admin', passwordHash, salt],
           function (err) {
             if (err) {
               console.error('Error inserting demo admin user:', err.message);
             } else {
-              console.log('Demo admin user created.');
+              console.log('Demo admin user created with username "admin".');
             }
           }
         );
