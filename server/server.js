@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV === 'demo') {
+  await import('./reset-demo.js');
+}
+
 import express from 'express';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
