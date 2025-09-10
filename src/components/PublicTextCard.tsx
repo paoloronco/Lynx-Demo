@@ -105,21 +105,25 @@ export const PublicTextCard = ({ link }: PublicTextCardProps) => {
           {link.textItems && link.textItems.length > 0 && (
             <ul className="text-sm leading-relaxed space-y-2 mb-3" style={link.textColor ? { color: link.textColor } : undefined}>
               {link.textItems.map((item, index) => (
-                <li key={index} className="flex items-center">
+                <li key={index} className="flex">
                   <span className="mr-2">•</span>
-                  {item.url ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(item.url!, '_blank');
-                      }}
-                      className="text-left hover:underline hover:text-primary transition-colors"
-                    >
-                      {item.text} ({item.url})
-                    </button>
-                  ) : (
-                    <span>{item.text}</span>
-                  )}
+                  <div className="flex-1 min-w-0">
+                    {/* Label on its own line */}
+                    <div>{item.text}</div>
+                    {/* URL on second indented line without wrapping */}
+                    {item.url && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(item.url!, '_blank');
+                        }}
+                        className="ml-6 block whitespace-nowrap overflow-x-auto hover:underline hover:text-primary transition-colors text-left"
+                        title={item.url}
+                      >
+                        {item.url}
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

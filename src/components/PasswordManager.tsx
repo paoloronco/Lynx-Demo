@@ -31,21 +31,17 @@ export const PasswordManager = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<Message | null>(null);
   const username = 'admin'; // Fixed admin username
-  const demoMode = true; // Demo mode: disable modifications
+  const demoMode = false; // Demo mode disabled: enable modifications
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (demoMode) {
-      setMessage({ type: 'warning', text: 'Password changes are disabled in the demo.' });
-      return;
-    }
     
     if (newPassword !== confirmPassword) {
       setMessage({ type: 'error', text: 'New passwords do not match' });
       return;
     }
     
-    if (!isPasswordStrong(newPassword)) {
+    if (!(await isPasswordStrong(newPassword))) {
       setMessage({ 
         type: 'error', 
         text: 'Password must be at least 8 characters with minimum 1 uppercase, 1 lowercase, 1 number, and 1 special character' 
@@ -160,10 +156,6 @@ export const PasswordManager = () => {
   };
 
   const handleResetApp = async (): Promise<void> => {
-    if (demoMode) {
-      setMessage({ type: 'warning', text: 'Reset is disabled in the demo.' });
-      return;
-    }
     if (!window.confirm('Are you sure you want to reset the application? This will delete all data and cannot be undone.')) {
       return;
     }
@@ -240,7 +232,7 @@ export const PasswordManager = () => {
           </div>
           <h2 className="text-xl font-semibold gradient-text">Change Password</h2>
           <p className="text-muted-foreground text-sm">
-            Update your admin password (disabled in demo)
+            Update your admin password
           </p>
         </div>
 
@@ -256,7 +248,7 @@ export const PasswordManager = () => {
                 className="glass-card border-primary/20 pr-10"
                 placeholder="Enter current password"
                 required
-                disabled={demoMode}
+                disabled={isLoading}
               />
               <Button
                 type="button"
@@ -264,7 +256,7 @@ export const PasswordManager = () => {
                 size="icon"
                 className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                disabled={demoMode}
+                disabled={isLoading}
               >
                 {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </Button>
@@ -282,7 +274,7 @@ export const PasswordManager = () => {
                 className="glass-card border-primary/20 pr-10"
                 placeholder="Enter new password"
                 required
-                disabled={demoMode}
+                disabled={isLoading}
               />
               <Button
                 type="button"
@@ -290,7 +282,7 @@ export const PasswordManager = () => {
                 size="icon"
                 className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                 onClick={() => setShowNewPassword(!showNewPassword)}
-                disabled={demoMode}
+                disabled={isLoading}
               >
                 {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </Button>
@@ -318,7 +310,7 @@ export const PasswordManager = () => {
                 className="glass-card border-primary/20 pr-10"
                 placeholder="Confirm new password"
                 required
-                disabled={demoMode}
+                disabled={isLoading}
               />
               <Button
                 type="button"
@@ -326,7 +318,7 @@ export const PasswordManager = () => {
                 size="icon"
                 className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                disabled={demoMode}
+                disabled={isLoading}
               >
                 {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </Button>
@@ -352,9 +344,9 @@ export const PasswordManager = () => {
             type="submit"
             variant="gradient"
             className="w-full"
-            disabled={isLoading || demoMode}
+            disabled={isLoading}
           >
-            {demoMode ? "Disabled in demo" : (isLoading ? "Changing Password..." : "Change Password")}
+            {isLoading ? "Changing Password..." : "Change Password"}
           </Button>
         </form>
 
@@ -372,9 +364,9 @@ export const PasswordManager = () => {
               variant="destructive"
               size="sm"
               className="w-full"
-              disabled={demoMode || isLoading}
+              disabled={isLoading}
             >
-              {demoMode ? 'Disabled in demo' : 'Clear Auth Data & Reset'}
+              Clear Auth Data & Reset
             </Button>
           </div>
         </div>

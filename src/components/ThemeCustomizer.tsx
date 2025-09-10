@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { Palette, Type, Layout, Sparkles, FileDown, Upload, RotateCcw } from "lucide-react";
+import { Palette, Type, Layout, FileDown, Upload, RotateCcw } from "lucide-react";
 import { ThemeConfig, defaultTheme, applyTheme } from "@/lib/theme";
 
 interface ThemeCustomizerProps {
@@ -150,7 +150,7 @@ export const ThemeCustomizer = ({ theme, onThemeChange, onThemePreview }: ThemeC
       </div>
 
       <Tabs defaultValue="colors" className="w-full">
-        <TabsList className="grid grid-cols-4 w-full">
+        <TabsList className="grid grid-cols-3 w-full">
           <TabsTrigger value="colors" className="flex items-center gap-1">
             <Palette className="w-4 h-4" />
             Colors
@@ -162,10 +162,6 @@ export const ThemeCustomizer = ({ theme, onThemeChange, onThemePreview }: ThemeC
           <TabsTrigger value="layout" className="flex items-center gap-1">
             <Layout className="w-4 h-4" />
             Layout
-          </TabsTrigger>
-          <TabsTrigger value="content" className="flex items-center gap-1">
-            <Sparkles className="w-4 h-4" />
-            Content
           </TabsTrigger>
         </TabsList>
 
@@ -398,52 +394,6 @@ export const ThemeCustomizer = ({ theme, onThemeChange, onThemePreview }: ThemeC
                 <SelectItem value="36rem">XXL (576px)</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="content" className="space-y-6">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Profile Name</Label>
-              <Input
-                value={pendingTheme.content.profileName}
-                onChange={(e) => updatePendingTheme({
-                  content: { ...pendingTheme.content, profileName: e.target.value }
-                })}
-                placeholder="Your Name"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Profile Bio</Label>
-              <Textarea
-                value={pendingTheme.content.profileBio}
-                onChange={(e) => updatePendingTheme({
-                  content: { ...pendingTheme.content, profileBio: e.target.value }
-                })}
-                placeholder="Tell people about yourself..."
-                rows={3}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Footer Text</Label>
-              <Input
-                value={pendingTheme.content.footerText}
-                onChange={(e) => updatePendingTheme({
-                  content: { ...pendingTheme.content, footerText: e.target.value }
-                })}
-                placeholder="Connect with me through these links"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Admin Page Title</Label>
-              <Input
-                value={pendingTheme.content.adminTitle}
-                onChange={(e) => updatePendingTheme({
-                  content: { ...pendingTheme.content, adminTitle: e.target.value }
-                })}
-                placeholder="Link Manager Admin"
-              />
-            </div>
           </div>
         </TabsContent>
       </Tabs>

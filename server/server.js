@@ -22,7 +22,9 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+// Increase body size limits to support base64-encoded avatar images
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.static(join(__dirname, '../dist')));
 
 // Initialize database
@@ -115,7 +117,8 @@ app.get('/api/profile', async (req, res) => {
         name: "Alex Johnson",
         bio: "Digital creator & entrepreneur sharing my favorite tools and resources. Follow along for the latest in tech, design, and productivity.",
         avatar: "/src/assets/profile-avatar.jpg",
-        social_links: {}
+        social_links: {},
+        show_avatar: 1
       });
     }
     
@@ -123,7 +126,8 @@ app.get('/api/profile', async (req, res) => {
       name: profile.name,
       bio: profile.bio,
       avatar: profile.avatar,
-      social_links: profile.social_links ? JSON.parse(profile.social_links) : {}
+      social_links: profile.social_links ? JSON.parse(profile.social_links) : {},
+      show_avatar: profile.show_avatar === 0 ? 0 : 1
     });
   } catch (error) {
     res.status(500).json({ error: 'Failed to load profile' });
@@ -132,20 +136,20 @@ app.get('/api/profile', async (req, res) => {
 
 app.put('/api/profile', authenticateToken, async (req, res) => {
   try {
-    const { name, bio, avatar, socialLinks } = req.body;
+    const { name, bio, avatar, socialLinks, showAvatar } = req.body;
     
     // Check if profile exists
     const existing = await dbGet('SELECT id FROM profile_data LIMIT 1');
     
     if (existing) {
       await dbRun(
-        'UPDATE profile_data SET name = ?, bio = ?, avatar = ?, social_links = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-        [name, bio, avatar, JSON.stringify(socialLinks || {}), existing.id]
+        'UPDATE profile_data SET name = ?, bio = ?, avatar = ?, social_links = ?, show_avatar = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [name, bio, avatar, JSON.stringify(socialLinks || {}), showAvatar ? 1 : 0, existing.id]
       );
     } else {
       await dbRun(
-        'INSERT INTO profile_data (name, bio, avatar, social_links) VALUES (?, ?, ?, ?)',
-        [name, bio, avatar, JSON.stringify(socialLinks || {})]
+        'INSERT INTO profile_data (name, bio, avatar, social_links, show_avatar) VALUES (?, ?, ?, ?, ?)',
+        [name, bio, avatar, JSON.stringify(socialLinks || {}), showAvatar ? 1 : 0]
       );
     }
     
@@ -295,10 +299,62 @@ app.post('/api/validate-password', (req, res) => {
 });
 
 app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
-  return res.status(403).json({ 
-    success: false, 
-    error: 'Password changes are disabled in the demo.' 
-  });
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, error: 'Current and new passwords are required' });
+    }
+
+    // Get current admin user
+    const user = await dbGet(
+      'SELECT username, password_hash, salt FROM admin_users WHERE username = ?',
+      ['admin']
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'Admin user not found' });
+    }
+
+    // Verify current password
+    const computedHash = await bcrypt.hash(currentPassword, user.salt);
+    const isCurrentValid = computedHash === user.password_hash;
+    if (!isCurrentValid) {
+      return res.status(401).json({ success: false, error: 'Current password is incorrect' });
+    }
+
+    // Enforce strong password
+    if (!isPasswordStrong(newPassword)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character' 
+      });
+    }
+
+    // Hash new password with new salt
+    const newSalt = await bcrypt.genSalt(12);
+    const newHash = await bcrypt.hash(newPassword, newSalt);
+
+    // Update database
+    await dbRun(
+      'UPDATE admin_users SET password_hash = ?, salt = ?, created_at = created_at, updated_at = CURRENT_TIMESTAMP WHERE username = ?',
+      [newHash, newSalt, 'admin']
+    ).catch(async () => {
+      // Fallback if updated_at column does not exist
+      await dbRun(
+        'UPDATE admin_users SET password_hash = ?, salt = ? WHERE username = ?',
+        [newHash, newSalt, 'admin']
+      );
+    });
+
+    // Issue a fresh token
+    const token = generateToken('admin');
+
+    return res.json({ success: true, message: 'Password changed successfully', token });
+  } catch (error) {
+    console.error('Change password error:', error);
+    return res.status(500).json({ success: false, error: 'Failed to change password' });
+  }
 });
 
 // Internal function to reset the application (used by both endpoints)
@@ -367,8 +423,8 @@ const resetApplicationData = async () => {
     // Insert default empty profile
     console.log('Setting up default profile...');
     await dbRun(`
-      INSERT OR REPLACE INTO profile_data (id, name, bio, avatar, social_links)
-      VALUES (1, 'Your Name', 'A short bio about yourself', '', '{}')
+      INSERT OR REPLACE INTO profile_data (id, name, bio, avatar, social_links, show_avatar)
+      VALUES (1, 'Your Name', 'A short bio about yourself', '', '{}', 1)
     `);
     
     // Commit the transaction

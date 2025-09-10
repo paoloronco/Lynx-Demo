@@ -13,14 +13,13 @@ By participating in this project, you agree to abide by our Code of Conduct. We 
 Before you begin, ensure you have the following installed:
 - **Node.js** 18+ or **Bun**
 - **Git**
-- A **Supabase** account (for database features)
 - A code editor (we recommend **VS Code**)
 
 ### Setting Up Your Development Environment
 
 1. **Fork the repository**
    ```bash
-   git clone https://github.com/yourusername/lynx.git
+   git clone https://github.com/paoloronco/lynx.git
    cd lynx
    ```
 
@@ -31,24 +30,14 @@ Before you begin, ensure you have the following installed:
    bun install
    ```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
-   Add your Supabase credentials to `.env.local`:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. **Start the development server**
+3. **Start the development server**
    ```bash
    npm run dev
    # or
    bun dev
    ```
 
-5. **Verify everything works**
+4. **Verify everything works**
    - Visit `http://localhost:5173` for the public view
    - Visit `http://localhost:5173/admin` for the admin panel
 
@@ -95,23 +84,7 @@ We love feature suggestions! When proposing a new feature:
 ### Project Structure
 
 ```
-src/
-├── components/          # React components
-│   ├── ui/             # shadcn/ui components (avoid modifying)
-│   ├── AdminView.tsx   # Admin dashboard
-│   ├── PublicView.tsx  # Public link page
-│   ├── LinkCard.tsx    # Link management
-│   ├── ThemeCustomizer.tsx # Theme editor
-│   └── ...
-├── lib/                # Utilities and configurations
-│   ├── auth.ts         # Authentication system
-│   ├── theme.ts        # Theme management
-│   ├── utils.ts        # Helper functions
-│   └── supabase-data.ts # Database operations
-├── pages/              # Route components
-├── hooks/              # Custom React hooks
-├── integrations/       # External service integrations
-└── assets/             # Static assets
+
 ```
 
 ### Coding Standards

@@ -39,9 +39,13 @@ export const initializeDatabase = () => {
           bio TEXT,
           avatar TEXT,
           social_links TEXT,
+          show_avatar BOOLEAN DEFAULT 1,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `);
+
+      // Ensure show_avatar column exists for existing databases (best-effort migration)
+      db.run(`ALTER TABLE profile_data ADD COLUMN show_avatar BOOLEAN DEFAULT 1`, (err) => { /* ignore if exists */ });
 
       // Links table
       db.run(`

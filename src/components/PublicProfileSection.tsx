@@ -8,6 +8,7 @@ interface ProfileData {
   name: string;
   bio: string;
   avatar: string;
+  showAvatar?: boolean;
   socialLinks?: {
     linkedin?: string;
     github?: string;
@@ -26,15 +27,16 @@ export const PublicProfileSection = ({ profile }: PublicProfileSectionProps) => 
 
   return (
     <Card className="glass-card p-8 text-center transition-smooth hover:glow-effect">
-      <div className="mb-6">
-        <Avatar className="w-24 h-24 border-2 border-primary/20 mx-auto">
-          <AvatarImage src={profile.avatar || profileAvatar} alt={profile.name} />
-          <AvatarFallback className="text-2xl font-bold gradient-text">
-            {profile.name.charAt(0) || 'U'}
-          </AvatarFallback>
-        </Avatar>
-      </div>
-
+      {profile.showAvatar !== false && (
+        <div className="mb-6">
+          <Avatar className="w-24 h-24 mx-auto">
+            <AvatarImage src={profile.avatar || profileAvatar} alt={profile.name} />
+            <AvatarFallback className="text-2xl font-bold gradient-text">
+              {profile.name.charAt(0) || 'U'}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      )}
       <div className="space-y-4">
         <h1 className="text-2xl font-bold text-foreground mb-2">
           {profile.name || "Your Name"}
@@ -97,7 +99,7 @@ export const PublicProfileSection = ({ profile }: PublicProfileSectionProps) => 
         )}
         
         {hasBio && (
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
             {profile.bio}
           </p>
         )}

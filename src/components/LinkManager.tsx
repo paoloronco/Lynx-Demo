@@ -12,6 +12,7 @@ interface LinkManagerProps {
 
 export const LinkManager = ({ links, onLinksUpdate }: LinkManagerProps) => {
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const addNewLink = () => {
     const newLink: LinkData = {
@@ -58,26 +59,47 @@ export const LinkManager = ({ links, onLinksUpdate }: LinkManagerProps) => {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, targetId: string) => {
-    e.preventDefault();
-    
-    if (!draggedItem || draggedItem === targetId) return;
-
-    const draggedIndex = links.findIndex(link => link.id === draggedItem);
-    const targetIndex = links.findIndex(link => link.id === targetId);
-
+  const performReorder = (fromId: string, toId: string) => {
+    if (!fromId || !toId || fromId === toId) return;
+    const draggedIndex = links.findIndex(link => link.id === fromId);
+    const targetIndex = links.findIndex(link => link.id === toId);
     if (draggedIndex === -1 || targetIndex === -1) return;
-
     const newLinks = [...links];
     const [draggedLink] = newLinks.splice(draggedIndex, 1);
     newLinks.splice(targetIndex, 0, draggedLink);
-
     onLinksUpdate(newLinks);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedItem || draggedItem === targetId) return;
+    performReorder(draggedItem, targetId);
     setDraggedItem(null);
+    setDragOverId(null);
   };
 
   const handleDragEnd = () => {
     setDraggedItem(null);
+    setDragOverId(null);
+  };
+
+  const handleDragEnter = (targetId: string) => {
+    if (!draggedItem || draggedItem === targetId) return;
+    setDragOverId(targetId);
+    // Reorder live as we drag over items for fluid UX
+    performReorder(draggedItem, targetId);
+    setDraggedItem(targetId);
+  };
+
+  const moveByOffset = (id: string, delta: number) => {
+    const index = links.findIndex(l => l.id === id);
+    if (index === -1) return;
+    const newIndex = Math.max(0, Math.min(links.length - 1, index + delta));
+    if (newIndex === index) return;
+    const newLinks = [...links];
+    const [item] = newLinks.splice(index, 1);
+    newLinks.splice(newIndex, 0, item);
+    onLinksUpdate(newLinks);
   };
 
   return (
@@ -134,8 +156,10 @@ export const LinkManager = ({ links, onLinksUpdate }: LinkManagerProps) => {
               draggable
               onDragStart={(e) => handleDragStart(e, link.id)}
               onDragOver={handleDragOver}
+              onDragEnter={() => handleDragEnter(link.id)}
               onDrop={(e) => handleDrop(e, link.id)}
               onDragEnd={handleDragEnd}
+              className={dragOverId === link.id ? 'ring-2 ring-primary/40 rounded-lg' : ''}
             >
               {link.type === 'text' ? (
                 <TextCard
@@ -149,6 +173,8 @@ export const LinkManager = ({ links, onLinksUpdate }: LinkManagerProps) => {
                   link={link}
                   onUpdate={updateLink}
                   onDelete={deleteLink}
+                  onMoveUp={() => moveByOffset(link.id, -1)}
+                  onMoveDown={() => moveByOffset(link.id, 1)}
                   isDragging={draggedItem === link.id}
                 />
               )}

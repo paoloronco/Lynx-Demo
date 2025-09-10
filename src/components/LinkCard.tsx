@@ -30,9 +30,11 @@ interface LinkCardProps {
   onUpdate: (link: LinkData) => void;
   onDelete: (id: string) => void;
   isDragging?: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
 }
 
-export const LinkCard = ({ link, onUpdate, onDelete, isDragging }: LinkCardProps) => {
+export const LinkCard = ({ link, onUpdate, onDelete, isDragging, onMoveUp, onMoveDown }: LinkCardProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editLink, setEditLink] = useState(link);
 
@@ -216,24 +218,52 @@ export const LinkCard = ({ link, onUpdate, onDelete, isDragging }: LinkCardProps
                     )}
                   </div>
                 )}
-                <h3 className="font-semibold truncate" style={{ color: link.textColor }}>
+                <h3 className="font-semibold truncate" style={link.textColor ? { color: link.textColor } : undefined}>
                   {link.title || "Untitled Link"}
                 </h3>
                 <ExternalLink className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-smooth" />
               </div>
               {link.description && (
-                <p className="text-sm text-muted-foreground line-clamp-2">
+                <p
+                  className="text-sm line-clamp-2"
+                  style={link.textColor ? { color: link.textColor } : undefined}
+                >
                   {link.description}
                 </p>
               )}
               {link.url && (
-                <p className="text-xs text-accent mt-1 truncate">
+                <p
+                  className="text-xs mt-1 truncate underline font-medium"
+                  style={link.textColor ? { color: link.textColor } : undefined}
+                >
                   {link.url}
                 </p>
               )}
             </div>
             
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-smooth" onClick={(e) => e.stopPropagation()}>
+              {onMoveUp && (
+                <Button
+                  onClick={onMoveUp}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  title="Move up"
+                >
+                  ▲
+                </Button>
+              )}
+              {onMoveDown && (
+                <Button
+                  onClick={onMoveDown}
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8"
+                  title="Move down"
+                >
+                  ▼
+                </Button>
+              )}
               <Button
                 onClick={() => setIsEditing(true)}
                 variant="ghost"

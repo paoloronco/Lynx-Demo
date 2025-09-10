@@ -295,22 +295,26 @@ export const TextCard = ({ link, onUpdate, onDelete, isDragging }: TextCardProps
               {link.textItems && link.textItems.length > 0 && (
                 <ul className="text-sm leading-relaxed space-y-2 mb-3">
                   {link.textItems.map((item, index) => (
-                    <li key={index} className="flex items-center">
+                    <li key={index} className="flex">
                       <span className="mr-2">•</span>
-                      {item.url ? (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(item.url, '_blank');
-                          }}
-                          className="text-left hover:underline hover:text-primary transition-colors"
-                          style={{ color: link.textColor }}
-                        >
-                          {item.text} {item.url}
-                        </button>
-                      ) : (
-                        <span style={{ color: link.textColor }}>{item.text}</span>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        {/* Name/label on its own line */}
+                        <div style={{ color: link.textColor }}>{item.text}</div>
+                        {/* Link on a second indented line, no wrap, horizontal scroll if too long */}
+                        {item.url && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(item.url!, '_blank');
+                            }}
+                            className="ml-6 block whitespace-nowrap overflow-x-auto no-scrollbar hover:underline hover:text-primary transition-colors text-left"
+                            style={{ color: link.textColor }}
+                            title={item.url}
+                          >
+                            {item.url}
+                          </button>
+                        )}
+                      </div>
                     </li>
                   ))}
                 </ul>

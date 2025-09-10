@@ -48,7 +48,7 @@ export const AdminView = ({
             <div className="flex items-center gap-3">
               <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
               <h1 className="text-lg font-semibold text-primary">
-                {theme.content.adminTitle}
+                Lynx - Your personal links hub
               </h1>
             </div>
             <Button variant="outline" size="sm" onClick={handleLogout}>
@@ -114,8 +114,9 @@ export const AdminView = ({
         {/* Footer */}
         <div className="text-center pt-8">
           <p className="text-xs text-muted-foreground opacity-60">
-            Advanced admin interface - Full control over your link hub
+            Powered by <a href="https://github.com/paoloronco/Lynx" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">Lynx</a>
           </p>
+          <div className="text-xs text-muted-foreground opacity-60">Lynx - Your personal links hub</div>
         </div>
       </div>
     </div>

@@ -66,6 +66,14 @@ export const PublicLinkCard = ({ link }: PublicLinkCardProps) => {
               {link.description}
             </p>
           )}
+          {link.url && (
+            <p
+              className="text-xs mt-1 truncate underline font-medium"
+              style={link.textColor ? { color: link.textColor } : undefined}
+            >
+              {link.url}
+            </p>
+          )}
         </div>
       </div>
     </Card>

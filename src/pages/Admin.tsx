@@ -12,6 +12,7 @@ interface ProfileData {
   name: string;
   bio: string;
   avatar: string;
+  showAvatar?: boolean;
   socialLinks?: {
     linkedin?: string;
     github?: string;
@@ -30,6 +31,7 @@ const Admin = () => {
     name: "Alex Johnson",
     bio: "Digital creator & entrepreneur sharing my favorite tools and resources. Follow along for the latest in tech, design, and productivity.",
     avatar: profileAvatar,
+    showAvatar: true,
   });
 
   const [links, setLinks] = useState<LinkData[]>([
@@ -102,6 +104,7 @@ const Admin = () => {
             name: profileData.name,
             bio: profileData.bio,
             avatar: profileData.avatar,
+            showAvatar: (profileData as any).showAvatar ?? true,
             socialLinks: profileData.social_links || {}
           });
         }
@@ -168,7 +171,8 @@ const Admin = () => {
         name: newProfile.name,
         bio: newProfile.bio,
         avatar: newProfile.avatar,
-        socialLinks: newProfile.socialLinks || {}
+        socialLinks: newProfile.socialLinks || {},
+        showAvatar: typeof newProfile.showAvatar === 'boolean' ? newProfile.showAvatar : true,
       });
       setProfile(newProfile);
     } catch (error) {

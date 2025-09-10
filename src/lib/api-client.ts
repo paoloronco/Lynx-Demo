@@ -64,6 +64,8 @@ interface ProfileResponse extends ApiResponse {
   bio: string;
   avatar: string;
   social_links: Record<string, string>;
+  show_avatar?: number;
+  showAvatar?: boolean;
 }
 
 interface LinkItem {
@@ -159,11 +161,14 @@ export const authApi = {
   },
 
   changePassword: async (currentPassword: string, newPassword: string): Promise<ChangePasswordResponse> => {
-    // Demo mode: disable password changes entirely on the client side
-    return Promise.resolve({
-      success: false,
-      message: 'Password changes are disabled in the demo.',
-      error: 'Password changes are disabled in the demo.'
+    return apiRequest<ChangePasswordResponse>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    }).then((response) => {
+      if (response.token) {
+        setAuthToken(response.token);
+      }
+      return response;
     });
   },
 };
@@ -171,15 +176,21 @@ export const authApi = {
 // Profile API
 export const profileApi = {
   get: async (): Promise<ProfileResponse> => {
-    return apiRequest<ProfileResponse>('/profile');
+    return apiRequest<ProfileResponse>('/profile').then((resp) => {
+      const showAvatar = typeof (resp as any).show_avatar !== 'undefined'
+        ? ((resp as any).show_avatar !== 0)
+        : (typeof (resp as any).showAvatar !== 'undefined' ? (resp as any).showAvatar : true);
+      return { ...(resp as any), showAvatar } as ProfileResponse;
+    });
   },
 
-  update: async (profile: Omit<ProfileResponse, 'social_links'> & { socialLinks: Record<string, string> }): Promise<ApiResponse> => {
+  update: async (profile: { name: string; bio: string; avatar: string; socialLinks: Record<string, string>; showAvatar?: boolean }): Promise<ApiResponse> => {
     return apiRequest<ApiResponse>('/profile', {
       method: 'PUT',
       body: JSON.stringify({
         ...profile,
-        social_links: profile.socialLinks
+        social_links: profile.socialLinks,
+        showAvatar: typeof profile.showAvatar === 'boolean' ? profile.showAvatar : true,
       }),
     });
   },
