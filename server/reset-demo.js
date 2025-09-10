@@ -82,7 +82,35 @@ if (process.env.NODE_ENV !== 'demo') {
   }
 
   // Reset iniziale
-  resetLinksOnly();
+  function resetLinksOnly() {
+  const db = new sqlite3.Database(DB_PATH);
+
+  // Assicura che la tabella links esista (non tocca le altre)
+  ensureTables(db);
+
+  // Esegui i comandi in sequenza atomica
+  db.exec(
+    `
+    PRAGMA foreign_keys = OFF;
+    DELETE FROM links;
+    PRAGMA foreign_keys = ON;
+    `,
+    (err) => {
+      if (err) {
+        console.error('Errore durante il reset dei links:', err.message);
+      } else {
+        console.log('Reset (SOLO links) eseguito alle', new Date().toLocaleString());
+      }
+      // Chiudi SOLO quando il lavoro è finito
+      db.close((closeErr) => {
+        if (closeErr) {
+          console.error('Errore in chiusura DB:', closeErr.message);
+        }
+      });
+    }
+  );
+}
+
 
   // Reset periodico
   setInterval(resetLinksOnly, intervalMinutes * 60 * 1000);
