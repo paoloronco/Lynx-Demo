@@ -5,7 +5,7 @@
 - **Admin Panel**: [https://lynx-demo.onrender.com/admin](https://lynx-demo.onrender.com/admin)  
 - **Login**:  
   - User: `admin`  
-  - Password: `ChangeMe123!` 
+  - Password: `demo123` 
     the password can't be changed
 
 
