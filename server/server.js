@@ -295,79 +295,10 @@ app.post('/api/validate-password', (req, res) => {
 });
 
 app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
-    const username = 'admin'; // Always use 'admin' as username
-    
-    console.log('Change password request received');
-    
-    if (!currentPassword || !newPassword) {
-      console.log('Missing required fields');
-      return res.status(400).json({ success: false, error: 'Current password and new password are required' });
-    }
-    
-    // Get the current user data
-    const user = await dbGet(
-      'SELECT username, password_hash, salt FROM admin_users WHERE username = ?',
-      [username]
-    );
-    
-    if (!user) {
-      console.log('Admin user not found in database');
-      return res.status(404).json({ success: false, error: 'Admin account not found' });
-    }
-    
-    console.log('Verifying current password...');
-    
-    // Verify current password
-    const currentHash = await bcrypt.hash(currentPassword, user.salt);
-    if (currentHash !== user.password_hash) {
-      console.log('Current password verification failed');
-      console.log('Stored hash:', user.password_hash);
-      console.log('Computed hash:', currentHash);
-      console.log('Using salt:', user.salt);
-      return res.status(401).json({ success: false, error: 'Current password is incorrect' });
-    }
-    
-    // Validate new password strength
-    if (!isPasswordStrong(newPassword)) {
-      console.log('New password does not meet strength requirements');
-      return res.status(400).json({ 
-        success: false,
-        error: 'Password must be at least 8 characters with minimum 1 uppercase, 1 lowercase, 1 number, and 1 special character' 
-      });
-    }
-    
-    // Generate new salt and hash for the new password
-    console.log('Generating new password hash...');
-    const newSalt = await bcrypt.genSalt(12);
-    const newPasswordHash = await bcrypt.hash(newPassword, newSalt);
-    
-    // Update the password and salt in the database
-    console.log('Updating database with new credentials...');
-    await dbRun(
-      'UPDATE admin_users SET password_hash = ?, salt = ? WHERE username = ?',
-      [newPasswordHash, newSalt, username]
-    );
-    
-    // Generate new token with updated credentials
-    console.log('Generating new auth token...');
-    const token = generateToken(username);
-    
-    console.log('Password change successful');
-    res.json({ 
-      success: true, 
-      message: 'Password changed successfully',
-      token
-    });
-    
-  } catch (error) {
-    console.error('Error changing password:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message || 'Failed to change password. Please try again.' 
-    });
-  }
+  return res.status(403).json({ 
+    success: false, 
+    error: 'Password changes are disabled in the demo.' 
+  });
 });
 
 // Internal function to reset the application (used by both endpoints)

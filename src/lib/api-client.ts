@@ -159,9 +159,11 @@ export const authApi = {
   },
 
   changePassword: async (currentPassword: string, newPassword: string): Promise<ChangePasswordResponse> => {
-    return apiRequest<ChangePasswordResponse>('/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify({ currentPassword, newPassword }),
+    // Demo mode: disable password changes entirely on the client side
+    return Promise.resolve({
+      success: false,
+      message: 'Password changes are disabled in the demo.',
+      error: 'Password changes are disabled in the demo.'
     });
   },
 };

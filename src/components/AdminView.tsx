@@ -1,13 +1,13 @@
 import { ProfileSection } from "./ProfileSection";
 import { LinkManager } from "./LinkManager";
 import { ThemeCustomizer } from "./ThemeCustomizer";
-import { PasswordManager } from "./PasswordManager";
 import { LinkData } from "./LinkCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { LogOut, Link, Palette, User, Key } from "lucide-react";
 import { logout } from "@/lib/auth";
 import { ThemeConfig, applyTheme } from "@/lib/theme";
+import { PasswordManager } from "./PasswordManager";
 
 interface ProfileData {
   name: string;
@@ -72,9 +72,9 @@ export const AdminView = ({
               <Palette className="w-4 h-4" />
               Theme
             </TabsTrigger>
-            <TabsTrigger value="password" className="flex items-center gap-1">
+            <TabsTrigger value="security" className="flex items-center gap-1">
               <Key className="w-4 h-4" />
-              Password
+              Security
             </TabsTrigger>
           </TabsList>
 
@@ -104,8 +104,10 @@ export const AdminView = ({
             />
           </TabsContent>
 
-          <TabsContent value="password" className="space-y-6">
-            <PasswordManager />
+          <TabsContent value="security" className="space-y-6">
+            <div className="max-w-md mx-auto">
+              <PasswordManager />
+            </div>
           </TabsContent>
         </Tabs>
         
