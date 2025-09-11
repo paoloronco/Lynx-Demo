@@ -9,7 +9,8 @@ if (process.env.NODE_ENV !== 'demo') {
 } else {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
-  const DB_PATH = join(__dirname, 'lynx.db');
+  // Use the same DB file as the main app (supports persistent disk on Render)
+  const DB_PATH = process.env.DATABASE_PATH || join(__dirname, 'lynx.db');
 
   // Theme defaults (can be overridden by environment variables)
   const THEME_PRIMARY = process.env.THEME_PRIMARY_COLOR || '#007bff';
@@ -178,7 +179,7 @@ if (process.env.NODE_ENV !== 'demo') {
 
       // Commit transaction
       await run(db, 'COMMIT');
-      console.log('[reset-demo] Database has been reset at', new Date().toISOString());
+      console.log('[reset-demo] Database has been reset at', new Date().toISOString(), 'DB:', DB_PATH);
     } catch (err) {
       try {
         await run(db, 'ROLLBACK');

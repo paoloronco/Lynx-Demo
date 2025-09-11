@@ -1,18 +1,27 @@
 import sqlite3 from 'sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const dbPath = join(__dirname, 'lynx.db');
+// Resolve database path: env override or local file fallback
+const resolvedDbPath = process.env.DATABASE_PATH || join(__dirname, 'lynx.db');
+// Ensure directory exists for the DB file (important for mounted volumes in production)
+try {
+  const dir = dirname(resolvedDbPath);
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+} catch (e) {
+  console.warn('Warning: could not ensure database directory exists:', e?.message || e);
+}
 
 // Create database connection
-const db = new sqlite3.Database(dbPath, (err) => {
+const db = new sqlite3.Database(resolvedDbPath, (err) => {
   if (err) {
     console.error('Error opening database:', err.message);
   } else {
-    console.log('Connected to SQLite database');
+    console.log('Connected to SQLite database at', resolvedDbPath);
   }
 });
 
