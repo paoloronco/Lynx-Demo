@@ -303,62 +303,10 @@ app.post('/api/validate-password', (req, res) => {
 });
 
 app.post('/api/auth/change-password', authenticateToken, async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body || {};
-
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ success: false, error: 'Current and new passwords are required' });
-    }
-
-    // Get current admin user
-    const user = await dbGet(
-      'SELECT username, password_hash, salt FROM admin_users WHERE username = ?',
-      ['admin']
-    );
-
-    if (!user) {
-      return res.status(404).json({ success: false, error: 'Admin user not found' });
-    }
-
-    // Verify current password
-    const computedHash = await bcrypt.hash(currentPassword, user.salt);
-    const isCurrentValid = computedHash === user.password_hash;
-    if (!isCurrentValid) {
-      return res.status(401).json({ success: false, error: 'Current password is incorrect' });
-    }
-
-    // Enforce strong password
-    if (!isPasswordStrong(newPassword)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character' 
-      });
-    }
-
-    // Hash new password with new salt
-    const newSalt = await bcrypt.genSalt(12);
-    const newHash = await bcrypt.hash(newPassword, newSalt);
-
-    // Update database
-    await dbRun(
-      'UPDATE admin_users SET password_hash = ?, salt = ?, created_at = created_at, updated_at = CURRENT_TIMESTAMP WHERE username = ?',
-      [newHash, newSalt, 'admin']
-    ).catch(async () => {
-      // Fallback if updated_at column does not exist
-      await dbRun(
-        'UPDATE admin_users SET password_hash = ?, salt = ? WHERE username = ?',
-        [newHash, newSalt, 'admin']
-      );
-    });
-
-    // Issue a fresh token
-    const token = generateToken('admin');
-
-    return res.json({ success: true, message: 'Password changed successfully', token });
-  } catch (error) {
-    console.error('Change password error:', error);
-    return res.status(500).json({ success: false, error: 'Failed to change password' });
-  }
+  return res.status(403).json({ 
+    success: false, 
+    error: 'Password changes are disabled in the demo.' 
+  });
 });
 
 // Internal function to reset the application (used by both endpoints)
